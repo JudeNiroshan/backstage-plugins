@@ -6,6 +6,7 @@ import {
   WorkflowDataDTO,
   WorkflowOverviewDTO,
   WorkflowOverviewListResultDTO,
+  WorkflowRunStatusDTO,
   WorkflowSpecFile,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
@@ -524,5 +525,29 @@ describe('getWorkflowResults', () => {
     await expect(promise).rejects.toThrow(
       'No data index service provided for executing workflow with id',
     );
+  });
+});
+
+describe('getWorkflowStatuses', () => {
+  beforeEach(async () => {
+    jest.clearAllMocks();
+  });
+
+  it('returns all possible workflow status types', async () => {
+    const expectedResultV2 = [
+      { key: 'Active', value: 'ACTIVE' },
+      { key: 'Error', value: 'ERROR' },
+      { key: 'Completed', value: 'COMPLETED' },
+      { key: 'Aborted', value: 'ABORTED' },
+      { key: 'Suspended', value: 'SUSPENDED' },
+    ];
+
+    // Act
+    const actualResultV2: WorkflowRunStatusDTO[] =
+      await V2.getWorkflowStatuses();
+
+    // Assert
+    expect(actualResultV2).toBeDefined();
+    expect(actualResultV2).toEqual(expectedResultV2);
   });
 });
