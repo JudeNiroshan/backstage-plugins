@@ -2,7 +2,9 @@ import moment from 'moment';
 
 import {
   ProcessInstance,
+  ProcessInstanceState,
   WorkflowOverview,
+  WorkflowRunStatusDTO,
   WorkflowSpecFile,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
@@ -21,6 +23,7 @@ import {
   mapToGetWorkflowInstanceResults,
   mapToProcessInstanceDTO,
   mapToWorkflowOverviewDTO,
+  mapToWorkflowRunStatusDTO,
   mapToWorkflowSpecFileDTO,
   mapWorkflowCategoryDTOFromString,
 } from './V2Mappings';
@@ -211,6 +214,20 @@ describe('scenarios to verify mapToGetWorkflowInstanceResults', () => {
     expect(Object.keys(mappedValue).length).toBe(1);
     expect(mappedValue.workflowoptions).toBeDefined();
     expect(mappedValue.workflowoptions?.length).toBe(0);
+  });
+});
+
+describe('scenarios to verify mapToWorkflowRunStatusDTO', () => {
+  it('correctly maps ProcessInstanceState to WorkflowRunStatusDTO', async () => {
+    const mappedValue: WorkflowRunStatusDTO = mapToWorkflowRunStatusDTO(
+      ProcessInstanceState.Active,
+    );
+
+    expect(mappedValue).toBeDefined();
+    expect(mappedValue.key).toBeDefined();
+    expect(mappedValue.value).toBeDefined();
+    expect(mappedValue.key).toEqual('Active');
+    expect(mappedValue.value).toEqual('ACTIVE');
   });
 });
 

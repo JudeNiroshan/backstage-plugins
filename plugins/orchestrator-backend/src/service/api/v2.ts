@@ -21,13 +21,13 @@ import { DataIndexService } from '../DataIndexService';
 import { SonataFlowService } from '../SonataFlowService';
 import { WorkflowService } from '../WorkflowService';
 import {
-  firstLetterToUppercase,
   mapToExecuteWorkflowResponseDTO,
   mapToGetWorkflowInstanceResults,
   mapToProcessInstanceDTO,
   mapToWorkflowDTO,
   mapToWorkflowListResultDTO,
   mapToWorkflowOverviewDTO,
+  mapToWorkflowRunStatusDTO,
   mapToWorkflowSpecFileDTO,
 } from './mapping/V2Mappings';
 import { V1 } from './v1';
@@ -208,19 +208,13 @@ export namespace V2 {
   }
 
   export async function getWorkflowStatuses(): Promise<WorkflowRunStatusDTO[]> {
-    const result: WorkflowRunStatusDTO[] = [
+    return [
       ProcessInstanceState.Active,
       ProcessInstanceState.Error,
       ProcessInstanceState.Completed,
       ProcessInstanceState.Aborted,
       ProcessInstanceState.Suspended,
-    ].map(
-      (status): WorkflowRunStatusDTO => ({
-        key: firstLetterToUppercase(status),
-        value: status,
-      }),
-    );
-    return result;
+    ].map(status => mapToWorkflowRunStatusDTO(status));
   }
 
   export function extractQueryParam(

@@ -206,6 +206,15 @@ export function mapToWorkflowSpecFileDTO(
   };
 }
 
+export function mapToWorkflowRunStatusDTO(
+  status: ProcessInstanceState,
+): WorkflowRunStatusDTO {
+  return {
+    key: firstLetterToUppercase(status),
+    value: status,
+  };
+}
+
 export function firstLetterToUppercase(text: string): string {
   if (text === undefined || text === null || text.length < 1) return text;
 
