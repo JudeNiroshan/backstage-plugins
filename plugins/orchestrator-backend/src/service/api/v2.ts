@@ -21,6 +21,7 @@ import { DataIndexService } from '../DataIndexService';
 import { SonataFlowService } from '../SonataFlowService';
 import { WorkflowService } from '../WorkflowService';
 import {
+  firstLetterToUppercase,
   mapToExecuteWorkflowResponseDTO,
   mapToGetWorkflowInstanceResults,
   mapToProcessInstanceDTO,
@@ -207,9 +208,6 @@ export namespace V2 {
   }
 
   export async function getWorkflowStatuses(): Promise<WorkflowRunStatusDTO[]> {
-    type Capitalized<S extends string> = Capitalize<Lowercase<S>>;
-    const capitalize = <S extends string>(text: S): Capitalized<S> =>
-      (text[0].toUpperCase() + text.slice(1).toLowerCase()) as Capitalized<S>;
     const result: WorkflowRunStatusDTO[] = [
       ProcessInstanceState.Active,
       ProcessInstanceState.Error,
@@ -218,7 +216,7 @@ export namespace V2 {
       ProcessInstanceState.Suspended,
     ].map(
       (status): WorkflowRunStatusDTO => ({
-        key: capitalize(status),
+        key: firstLetterToUppercase(status),
         value: status,
       }),
     );

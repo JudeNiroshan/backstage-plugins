@@ -17,6 +17,7 @@ import {
   WorkflowListResultDTO,
   WorkflowOverview,
   WorkflowOverviewDTO,
+  WorkflowRunStatusDTO,
   WorkflowSpecFile,
   WorkflowSpecFileDTO,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
@@ -203,4 +204,10 @@ export function mapToWorkflowSpecFileDTO(
     content: JSON.stringify(specV1.content),
     path: specV1.path,
   };
+}
+
+export function firstLetterToUppercase(text: string): string {
+  if (text === undefined || text === null || text.length < 1) return text;
+
+  return (text[0].toUpperCase() + text.slice(1).toLowerCase()) as string;
 }
