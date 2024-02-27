@@ -74,7 +74,7 @@ export namespace V1 {
       }),
     );
 
-    if (!items) {
+    if (items.length === 0) {
       throw new Error("Couldn't fetch workflows");
     }
 
