@@ -14,14 +14,19 @@ import {
   generateTestExecuteWorkflowResponse,
   generateTestWorkflowOverview,
   generateTestWorkflowSpecs,
+  generateWorkflowDefinition,
+  generateWorkflowListResult,
 } from '../test-utils';
 import assessedProcessInstanceData from './__fixtures__/assessedProcessInstance.json';
 import {
   firstLetterToUppercase,
   getProcessInstancesDTOFromString,
+  getWorkflowCategoryDTO,
   mapToExecuteWorkflowResponseDTO,
   mapToGetWorkflowInstanceResults,
   mapToProcessInstanceDTO,
+  mapToWorkflowDTO,
+  mapToWorkflowListResultDTO,
   mapToWorkflowOverviewDTO,
   mapToWorkflowRunStatusDTO,
   mapToWorkflowSpecFileDTO,
@@ -262,5 +267,50 @@ describe('scenarios to verify firstLetterToUppercase', () => {
     expect(transformedValue).toBeDefined();
     expect(transformedValue.length).toBe(1);
     expect(transformedValue).toEqual('C');
+  });
+});
+
+describe('scenarios to verify mapToWorkflowDTO', () => {
+  it('correctly maps positive scenario response', async () => {
+    const wfDefinition = generateWorkflowDefinition();
+    const mappedValue = mapToWorkflowDTO('testURI', wfDefinition);
+
+    expect(mappedValue).toBeDefined();
+    expect(mappedValue.uri).toEqual('testURI');
+    expect(mappedValue.id).toEqual(wfDefinition.id);
+    expect(mappedValue.name).toBeDefined();
+    expect(mappedValue.name).toEqual(wfDefinition.name);
+    expect(mappedValue.category).toEqual(getWorkflowCategoryDTO(wfDefinition));
+    expect(mappedValue.annotations).toEqual(wfDefinition.annotations);
+  });
+});
+
+describe('scenarios to verify mapToWorkflowListResultDTO', () => {
+  it('correctly maps positive scenario response', async () => {
+    const workflowList = generateWorkflowListResult(1);
+    const mappedValue = mapToWorkflowListResultDTO(workflowList);
+
+    expect(mappedValue).toBeDefined();
+    expect(mappedValue.items).toHaveLength(1);
+    expect(mappedValue.items[0].id).toEqual(
+      workflowList.items[0].definition.id,
+    );
+    expect(mappedValue.items[0].uri).toEqual(workflowList.items[0].uri);
+    expect(mappedValue.items[0].category).toEqual(
+      getWorkflowCategoryDTO(workflowList.items[0].definition),
+    );
+    expect(mappedValue.items[0].name).toBeDefined();
+    expect(mappedValue.items[0].name).toEqual(
+      workflowList.items[0].definition.name,
+    );
+
+    expect(mappedValue.items[0].description).toBeDefined();
+    expect(mappedValue.items[0].description).toEqual(
+      workflowList.items[0].definition.description,
+    );
+    expect(mappedValue.items[0].annotations).toBeDefined();
+    expect(mappedValue.items[0].annotations).toEqual(
+      workflowList.items[0].definition.annotations,
+    );
   });
 });

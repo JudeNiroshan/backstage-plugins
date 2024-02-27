@@ -8,6 +8,8 @@ import {
   WorkflowDefinition,
   WorkflowExecutionResponse,
   WorkflowInfo,
+  WorkflowItem,
+  WorkflowListResult,
   WorkflowOverview,
   WorkflowOverviewListResult,
   WorkflowSpecFile,
@@ -63,6 +65,17 @@ export function generateTestWorkflowOverviewList(
   return res;
 }
 
+export function generateTestWorkflowInfoList(
+  howmany: number,
+  id: string = 'test_workflowId',
+): WorkflowInfo[] {
+  const res: WorkflowInfo[] = [];
+  for (let i = 0; i < howmany; i++) {
+    res.push(generateTestWorkflowInfo(id + i));
+  }
+  return res;
+}
+
 export function generateTestWorkflowInfo(
   id: string = 'test_workflowId',
 ): WorkflowInfo {
@@ -82,7 +95,6 @@ export function generateTestExecuteWorkflowResponse(
 
 // Utility function to generate fake OpenAPIV3.Document
 export const fakeOpenAPIV3Document = (): OpenAPIV3.Document => {
-  // Customize this function based on your OpenAPI document structure
   return {
     openapi: '3.0.0',
     info: {
@@ -104,21 +116,25 @@ export function generateTestWorkflowSpecs(howmany: number): WorkflowSpecFile[] {
   return res;
 }
 
-export const generateWorkflowDefinition: WorkflowDefinition = {
-  id: 'quarkus-backend-workflow-ci-switch',
-  version: '1.0',
-  specVersion: '0.8',
-  name: '[WF] Create a starter Quarkus Backend application with a CI pipeline - CI Switch',
-  description:
-    '[WF] Create a starter Quarkus Backend application with a CI pipeline - CI Switch',
-  states: [
-    {
-      name: 'Test state',
-      type: 'operation',
-      end: true,
-    },
-  ],
-};
+export function generateWorkflowDefinition(
+  id: string = 'testId',
+): WorkflowDefinition {
+  return {
+    id: `${id}`,
+    version: '1.0',
+    specVersion: '0.8',
+    name: '[WF] Create a starter Quarkus Backend application with a CI pipeline - CI Switch',
+    description:
+      '[WF] Create a starter Quarkus Backend application with a CI pipeline - CI Switch',
+    states: [
+      {
+        name: 'Test state',
+        type: 'operation',
+        end: true,
+      },
+    ],
+  };
+}
 
 export function generateProcessInstances(howmany: number): ProcessInstance[] {
   const processInstances: ProcessInstance[] = [];
@@ -164,4 +180,29 @@ export function generateProcessInstance(id: number): ProcessInstance {
       },
     },
   };
+}
+
+export function generateWorkflowItem(id: string): WorkflowItem {
+  return {
+    uri: `testURI${id}`,
+    serviceUrl: `testServiceURL${id}`,
+    definition: generateWorkflowDefinition(id),
+  };
+}
+export function generateWorkflowListResult(
+  howmany: number,
+  id: string = 'testId',
+): WorkflowListResult {
+  const res: WorkflowListResult = {
+    items: [],
+    totalCount: howmany,
+    offset: 0,
+    limit: 0,
+  };
+
+  for (let i = 0; i < howmany; i++) {
+    res.items.push(generateWorkflowItem(`${id}${i}`));
+  }
+
+  return res;
 }

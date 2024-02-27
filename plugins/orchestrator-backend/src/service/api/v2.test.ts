@@ -26,6 +26,7 @@ import {
   generateProcessInstances,
   generateTestExecuteWorkflowResponse,
   generateTestWorkflowInfo,
+  generateTestWorkflowInfoList,
   generateTestWorkflowOverview,
   generateTestWorkflowOverviewList,
   generateTestWorkflowSpecs,
@@ -338,7 +339,7 @@ describe('getWorkflowById', () => {
 
   it('1 items in workflow list', async () => {
     const testUri = 'test-uri.sw.yaml';
-    const wfDefinition = generateWorkflowDefinition;
+    const wfDefinition = generateWorkflowDefinition();
 
     (
       mockSonataFlowService.fetchWorkflowDefinition as jest.Mock
@@ -361,6 +362,166 @@ describe('getWorkflowById', () => {
     expect(workflowV2.description).toEqual(wfDefinition.description);
     expect(workflowV2.category).toEqual('infrastructure');
     expect(workflowV2.annotations).toBeUndefined();
+  });
+});
+
+describe('getWorkflows', () => {
+  let mockSonataFlowService: SonataFlowService;
+  let mockDataIndexService: DataIndexService;
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockSonataFlowService = createMockSonataFlowService();
+    mockDataIndexService = createMockDataIndexService();
+  });
+
+  it('No workflows definitions', async () => {
+    (
+      mockDataIndexService.getWorkflowDefinitions as jest.Mock
+    ).mockRejectedValue(new Error('No definitions'));
+
+    // Act
+    const promise = V2.getWorkflows(
+      mockSonataFlowService,
+      mockDataIndexService,
+    );
+
+    // Assert
+    await expect(promise).rejects.toThrow('No definitions');
+    expect(mockDataIndexService.getWorkflowDefinitions).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockSonataFlowService.fetchWorkflowUri).not.toHaveBeenCalled();
+  });
+  it('empty definition and workflow uri', async () => {
+    (
+      mockDataIndexService.getWorkflowDefinitions as jest.Mock
+    ).mockResolvedValue([]);
+    (mockSonataFlowService.fetchWorkflowUri as jest.Mock).mockResolvedValueOnce(
+      '',
+    );
+
+    // Act
+    const promise = V2.getWorkflows(
+      mockSonataFlowService,
+      mockDataIndexService,
+    );
+
+    // Assert
+    await expect(promise).rejects.toThrow("Couldn't fetch workflows");
+    expect(mockDataIndexService.getWorkflowDefinitions).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockSonataFlowService.fetchWorkflowUri).not.toHaveBeenCalled();
+  });
+  it('one definition and undefined workflow uri', async () => {
+    const wfInfo = generateTestWorkflowInfo();
+    (
+      mockDataIndexService.getWorkflowDefinitions as jest.Mock
+    ).mockResolvedValueOnce([wfInfo]);
+    (mockSonataFlowService.fetchWorkflowUri as jest.Mock).mockResolvedValueOnce(
+      undefined,
+    );
+
+    // Act
+    const promise = V2.getWorkflows(
+      mockSonataFlowService,
+      mockDataIndexService,
+    );
+
+    // Assert
+    await expect(promise).rejects.toThrow(
+      'Uri is required for workflow test_workflowId',
+    );
+    expect(mockDataIndexService.getWorkflowDefinitions).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockSonataFlowService.fetchWorkflowUri).toHaveBeenCalledTimes(1);
+  });
+  it('workflow definition and workflow uri available', async () => {
+    const wfInfo = generateTestWorkflowInfo();
+    (
+      mockDataIndexService.getWorkflowDefinitions as jest.Mock
+    ).mockResolvedValueOnce([wfInfo]);
+    (mockSonataFlowService.fetchWorkflowUri as jest.Mock).mockResolvedValueOnce(
+      'testURI',
+    );
+
+    // Act
+    const workflowsV2 = await V2.getWorkflows(
+      mockSonataFlowService,
+      mockDataIndexService,
+    );
+
+    // Assert
+    expect(workflowsV2).toBeDefined();
+    expect(workflowsV2.items).toBeDefined();
+    expect(workflowsV2.items).toHaveLength(1);
+    expect(workflowsV2.items[0].uri).toEqual('testURI');
+    expect(workflowsV2.paginationInfo).toBeDefined();
+    expect(workflowsV2.paginationInfo.limit).toBeDefined();
+    expect(workflowsV2.paginationInfo.offset).toBeDefined();
+    expect(workflowsV2.paginationInfo.totalCount).toBeDefined();
+    expect(workflowsV2.paginationInfo.totalCount).toEqual(1);
+    expect(mockDataIndexService.getWorkflowDefinitions).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockSonataFlowService.fetchWorkflowUri).toHaveBeenCalledTimes(1);
+  });
+  it('multiple workflow definition and workflow uri available', async () => {
+    const wfInfo = generateTestWorkflowInfoList(3);
+    (
+      mockDataIndexService.getWorkflowDefinitions as jest.Mock
+    ).mockResolvedValueOnce(wfInfo);
+    (mockSonataFlowService.fetchWorkflowUri as jest.Mock)
+      .mockResolvedValueOnce('testURI0')
+      .mockResolvedValueOnce('testURI1')
+      .mockResolvedValueOnce('testURI2');
+
+    // Act
+    const workflowsV2 = await V2.getWorkflows(
+      mockSonataFlowService,
+      mockDataIndexService,
+    );
+
+    // Assert
+    expect(workflowsV2).toBeDefined();
+    expect(workflowsV2.items).toBeDefined();
+    expect(workflowsV2.items).toHaveLength(3);
+    expect(workflowsV2.items[0].uri).toEqual('testURI0');
+    expect(workflowsV2.items[1].uri).toEqual('testURI1');
+    expect(workflowsV2.items[2].uri).toEqual('testURI2');
+    expect(workflowsV2.paginationInfo).toBeDefined();
+    expect(workflowsV2.paginationInfo.limit).toBeDefined();
+    expect(workflowsV2.paginationInfo.offset).toBeDefined();
+    expect(workflowsV2.paginationInfo.totalCount).toBeDefined();
+    expect(workflowsV2.paginationInfo.totalCount).toEqual(3);
+    expect(mockDataIndexService.getWorkflowDefinitions).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockSonataFlowService.fetchWorkflowUri).toHaveBeenCalledTimes(3);
+  });
+  it('multiple workflow definition and workflow uri available except one', async () => {
+    const wfInfo = generateTestWorkflowInfoList(3);
+    (
+      mockDataIndexService.getWorkflowDefinitions as jest.Mock
+    ).mockResolvedValueOnce(wfInfo);
+    (mockSonataFlowService.fetchWorkflowUri as jest.Mock)
+      .mockResolvedValueOnce('testURI0')
+      .mockRejectedValueOnce(new Error('No testURI1'))
+      .mockResolvedValueOnce('testURI2');
+
+    // Act
+    const promise = V2.getWorkflows(
+      mockSonataFlowService,
+      mockDataIndexService,
+    );
+
+    // Assert
+    await expect(promise).rejects.toThrow('No testURI1');
+    expect(mockDataIndexService.getWorkflowDefinitions).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockSonataFlowService.fetchWorkflowUri).toHaveBeenCalledTimes(3);
   });
 });
 
