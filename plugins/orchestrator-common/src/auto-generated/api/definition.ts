@@ -124,27 +124,18 @@ const OPENAPI = `
                   "uri": {
                     "type": "string"
                   },
-                  "body": {
+                  "definition": {
                     "type": "string"
                   }
                 },
                 "required": [
-                  "uri"
+                  "uri",
+                  "definition"
                 ]
               }
             }
           }
         },
-        "parameters": [
-          {
-            "name": "uri",
-            "in": "query",
-            "description": "URI parameter",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "201": {
             "description": "Created",

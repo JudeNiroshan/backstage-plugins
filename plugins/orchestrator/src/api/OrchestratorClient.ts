@@ -164,9 +164,13 @@ export class OrchestratorClient implements OrchestratorApi {
     const urlToFetch = buildUrl(endpoint, {
       [QUERY_PARAM_URI]: uri,
     });
+    const requestBody = {
+      uri: uri,
+      definition: content,
+    };
     const res = await fetch(urlToFetch, {
       method: 'POST',
-      body: content,
+      body: JSON.stringify(requestBody),
       headers: {
         'content-type': 'text/plain',
       },

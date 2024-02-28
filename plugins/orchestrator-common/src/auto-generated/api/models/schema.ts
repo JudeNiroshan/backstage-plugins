@@ -277,17 +277,11 @@ export interface operations {
   };
   /** Create or update a workflow */
   createWorkflow: {
-    parameters: {
-      query?: {
-        /** @description URI parameter */
-        uri?: string;
-      };
-    };
     requestBody: {
       content: {
         'application/json': {
           uri: string;
-          body?: string;
+          definition: string;
         };
       };
     };

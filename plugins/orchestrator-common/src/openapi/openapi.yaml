@@ -79,16 +79,11 @@ paths:
               properties:
                 uri:
                   type: string
-                body:
+                definition:
                   type: string
               required:
                 - uri
-      parameters:
-        - name: uri
-          in: query
-          description: URI parameter
-          schema:
-            type: string
+                - definition
       responses:
         '201':
           description: Created

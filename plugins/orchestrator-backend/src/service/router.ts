@@ -550,7 +550,7 @@ function setupInternalRoutes(
       return;
     }
 
-    await V1.createWorkflow(services.workflowService, uri, req.body)
+    await V1.createWorkflow(services.workflowService, uri, req.body.definition)
       .then(result => res.status(201).json(result))
       .catch(error => {
         res.status(500).send(error.message || 'Internal Server Error');
@@ -560,14 +560,12 @@ function setupInternalRoutes(
   // v2
   api.register(
     'createWorkflow',
-    async (c, _req, res: express.Response, next) => {
-      const uri = V2.extractQueryParam(c.request, QUERY_PARAM_URI);
-
-      if (!uri) {
-        res.status(400).send('uri query param is required');
-        return;
-      }
-      await V2.createWorkflow(services.workflowService, uri, c.request.body)
+    async (_, req, res: express.Response, next) => {
+      await V2.createWorkflow(
+        services.workflowService,
+        req.body.uri,
+        req.body.definition,
+      )
         .then(result => res.json(result))
         .catch(error => {
           res.status(500).send(error.message || 'Internal Server Error');

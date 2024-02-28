@@ -157,9 +157,13 @@ export namespace V2 {
   export async function createWorkflow(
     workflowService: WorkflowService,
     uri: string,
-    reqBody: string,
+    definitionStr: string,
   ): Promise<WorkflowDTO> {
-    const workflowItem = await V1.createWorkflow(workflowService, uri, reqBody);
+    const workflowItem = await V1.createWorkflow(
+      workflowService,
+      uri,
+      definitionStr,
+    );
     return mapToWorkflowDTO(uri, workflowItem.definition);
   }
 
