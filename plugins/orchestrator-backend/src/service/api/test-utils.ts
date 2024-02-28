@@ -126,6 +126,7 @@ export function generateWorkflowDefinition(
     name: '[WF] Create a starter Quarkus Backend application with a CI pipeline - CI Switch',
     description:
       '[WF] Create a starter Quarkus Backend application with a CI pipeline - CI Switch',
+    annotations: ['test_annotation'],
     states: [
       {
         name: 'Test state',
